@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Validate Number — ConsentIVR{% endblock %}
+{% block body %}
+<h1 style="font-size:20px;">Phone number validator</h1>
+<p class="muted">Offline validation via libphonenumber (format, validity, region, line type,
+carrier, timezone) plus a cross-check against your opt-out / consent records. Optionally runs a
+live carrier lookup when a provider is configured.</p>
+
+<form class="inline" method="get" action="{{ url_for('dashboard.validate_phone') }}">
+  <input name="number" value="{{ number }}" placeholder="+1 415 555 0123 or (415) 555-0123" required style="min-width:280px;">
+  <input name="region" value="{{ region }}" maxlength="2" title="default region (ISO code) for numbers without a country code" style="width:70px;">
+  <label class="muted" style="display:inline-flex;align-items:center;gap:6px;">
+    <input type="checkbox" name="lookup" value="1" style="width:auto;"> live carrier lookup
+  </label>
+  <button type="submit">Validate</button>
+</form>
+
+{% if result %}
+<h2>Result</h2>
+{% if result.error %}
+<div class="flash error">Could not parse: {{ result.error }}</div>
+{% endif %}
+<div class="cards">
+  <div class="card"><div class="n" style="color:{{ 'var(--ok)' if result.valid else 'var(--bad)' }};">
+    {{ 'Valid' if result.valid else 'Invalid' }}</div><div class="l">libphonenumber</div></div>
+  <div class="card"><div class="n" style="font-size:20px;">{{ result.type or '—' }}</div><div class="l">line type</div></div>
+  <div class="card"><div class="n" style="color:{{ 'var(--bad)' if result.opted_out else 'var(--muted)' }};font-size:20px;">
+    {{ 'OPTED OUT' if result.opted_out else 'not opted out' }}</div><div class="l">suppression</div></div>
+  <div class="card"><div class="n" style="font-size:20px;">{{ 'yes' if result.known_contact else 'no' }}</div><div class="l">known contact</div></div>
+</div>
+
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>E.164</td><td><code>{{ result.e164 or '—' }}</code></td></tr>
+  <tr><td>National</td><td>{{ result.national or '—' }}</td></tr>
+  <tr><td>International</td><td>{{ result.international or '—' }}</td></tr>
+  <tr><td>Country code</td><td>+{{ result.country_code or '—' }}</td></tr>
+  <tr><td>Region</td><td>{{ result.region or '—' }}</td></tr>
+  <tr><td>Location</td><td>{{ result.location or '—' }}</td></tr>
+  <tr><td>Carrier (hint)</td><td>{{ result.carrier or '—' }}</td></tr>
+  <tr><td>Timezones</td><td>{{ result.timezones|join(', ') if result.timezones else '—' }}</td></tr>
+  <tr><td>Possible</td><td>{{ 'yes' if result.possible else 'no' }}</td></tr>
+</table>
+
+{% if result.consents %}
+<h3>Consent on record</h3>
+<table>
+  <tr><th>Purpose</th><th>Channel</th><th>Status</th></tr>
+  {% for c in result.consents %}
+  <tr><td>{{ c.purpose }}</td><td>{{ c.channel }}</td>
+      <td><span class="tag {{ 'ok' if c.status=='granted' else 'bad' }}">{{ c.status }}</span></td></tr>
+  {% endfor %}
+</table>
+{% elif result.valid %}
+<p class="muted">No consent records for this number — it is not callable for outbound campaigns.</p>
+{% endif %}
+
+<h3>Live carrier lookup</h3>
+{% if lookup %}
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Valid (provider)</td><td>{{ lookup.valid }}</td></tr>
+  <tr><td>Carrier</td><td>{{ lookup.carrier or '—' }}</td></tr>
+  <tr><td>Line type</td><td>{{ lookup.line_type or '—' }}</td></tr>
+  <tr><td>Country</td><td>{{ lookup.country or '—' }}</td></tr>
+</table>
+{% elif lookup_error %}
+<p class="muted">{{ lookup_error }}</p>
+{% else %}
+<p class="muted">Tick “live carrier lookup” to query a provider (paid per lookup; Twilio Lookup).</p>
+{% endif %}
+
+<div class="flash" style="margin-top:24px;">
+  <strong>Note:</strong> this tool intentionally does <em>not</em> check whether a number is
+  registered on WhatsApp, Telegram or other messengers. Those checks rely on abusing a service’s
+  contact-sync and enable bulk enumeration of people without their consent — out of scope for a
+  consent-based platform. Validate numbers you have permission to contact.
+</div>
+{% endif %}
+{% endblock %}

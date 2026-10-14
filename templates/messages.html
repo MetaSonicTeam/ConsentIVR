@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Messages — ConsentIVR{% endblock %}
+{% block body %}
+<h1 style="font-size:20px;">SMS Messages</h1>
+<p class="muted">Outbound reminder texts and inbound replies. Inbound
+<code>STOP</code> writes an opt-out automatically; <code>START</code> re-subscribes.</p>
+
+<div class="cards">
+  <div class="card"><div class="n">{{ stats.outbound }}</div><div class="l">sent</div></div>
+  <div class="card"><div class="n">{{ stats.inbound }}</div><div class="l">received</div></div>
+  <div class="card"><div class="n">{{ stats.delivered }}</div><div class="l">delivered</div></div>
+  <div class="card"><div class="n">{{ stats.failed }}</div><div class="l">failed</div></div>
+</div>
+
+<form class="inline" method="get" action="{{ url_for('dashboard.messages') }}" style="margin-top:16px;">
+  <select name="direction" onchange="this.form.submit()">
+    <option value="" {{ 'selected' if not direction }}>all directions</option>
+    <option value="outbound" {{ 'selected' if direction=='outbound' }}>outbound</option>
+    <option value="inbound" {{ 'selected' if direction=='inbound' }}>inbound</option>
+  </select>
+  <noscript><button type="submit">Filter</button></noscript>
+</form>
+
+<table>
+  <tr><th>When</th><th>Dir</th><th>Number</th><th>Campaign</th><th>Body</th><th>Status</th></tr>
+  {% for m in messages %}
+  <tr>
+    <td class="muted" style="white-space:nowrap;">{{ m.created_at }}</td>
+    <td><span class="tag {{ 'ok' if m.direction=='inbound' else '' }}">{{ m.direction }}</span></td>
+    <td><code>{{ m.from_number if m.direction=='inbound' else m.to_number }}</code></td>
+    <td class="muted">{{ m.campaign_name or '—' }}</td>
+    <td>{{ m.body or '' }}</td>
+    <td><span class="tag {{ 'bad' if m.status in ['failed','undelivered'] else ('ok' if m.status=='delivered' else '') }}">{{ m.status or '—' }}</span></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">No messages yet. SMS reminder campaigns and inbound STOP/START replies appear here.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

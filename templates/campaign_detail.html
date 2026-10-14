@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.name }} — ConsentIVR{% endblock %}
+{% block body %}
+<p><a href="{{ url_for('dashboard.campaigns') }}">&larr; All campaigns</a></p>
+<h1 style="font-size:20px;">
+  {{ campaign.name }}
+  <span class="tag">{{ campaign.kind }}</span>
+  <span class="tag">{{ campaign.channel }}</span>
+  <span class="tag {{ 'ok' if campaign.status in ['completed','running'] else '' }}">{{ campaign.status }}</span>
+</h1>
+<p class="muted">Consent purpose required: <code>{{ campaign.purpose }}</code>
+  {% if campaign.channel == 'voice' %}
+  · voice: <code>{{ campaign.voice or 'default' }}</code>
+  · voicemail detection: <code>{{ 'on' if campaign.amd_enabled else 'off' }}</code>
+  {% if campaign.agent_number %}· press 0 → agent <code>{{ campaign.agent_number }}</code>{% endif %}
+  {% endif %}
+</p>
+
+{% if campaign.kind == 'reminder' and campaign.script_text %}
+<p class="muted">Script: &ldquo;{{ campaign.script_text }}&rdquo;</p>
+{% endif %}
+
+<form class="inline" method="post" action="{{ url_for('dashboard.campaign_launch', cid=campaign.id) }}"
+      onsubmit="return confirm('Place calls to all eligible pending recipients now?');">
+  <button type="submit">Launch / resume calls</button>
+  {% if session.get('role') in ['admin','operator'] %}
+  <button type="submit" class="ghost" formaction="{{ url_for('dashboard.campaign_pause', cid=campaign.id) }}">Pause</button>
+  {% endif %}
+  <a href="{{ url_for('dashboard.campaign_results_csv', cid=campaign.id) }}"><button type="button" class="ghost">Download results CSV{% if campaign.kind == 'survey' %} (labels){% endif %}</button></a>
+  {% if campaign.kind == 'survey' %}
+  <a href="{{ url_for('dashboard.campaign_results_csv', cid=campaign.id, raw=1) }}"><button type="button" class="ghost">CSV (raw digits)</button></a>
+  {% endif %}
+</form>
+<p class="muted" style="font-size:13px;">Only recipients with status <code>pending</code> or <code>failed</code> are dialed,
+and only inside business hours (outbound fails closed if no calling window is configured).
+Re-launching resumes where the last run stopped.</p>
+
+<h2>Progress</h2>
+<div class="cards">
+  {% for status, n in tally.items() %}
+  <div class="card"><div class="n">{{ n }}</div><div class="l">{{ status }}</div></div>
+  {% else %}
+  <div class="card"><div class="n">0</div><div class="l">no recipients</div></div>
+  {% endfor %}
+</div>
+
+{% if campaign.kind == 'survey' %}
+<h2>Questions</h2>
+{% if questions %}
+<table>
+  <tr><th>#</th><th>Prompt</th><th>Digits</th><th>Answer labels</th></tr>
+  {% for q in questions %}
+  <tr><td>{{ q.seq }}</td><td>{{ q.prompt }}</td><td>{{ q.num_digits }}</td>
+      <td class="muted">{{ q.choices_json or '—' }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No questions yet.</p>
+{% endif %}
+{% if session.get('role') in ['admin','operator'] %}
+<form class="inline" method="post" action="{{ url_for('dashboard.campaign_add_question', cid=campaign.id) }}">
+  <input name="prompt" placeholder="Question prompt read to the respondent" required style="min-width:320px;">
+  <input name="num_digits" type="number" min="1" max="10" value="1" title="digits to collect" style="width:72px;">
+  <input name="choices" placeholder="labels, e.g. 1=Poor, 2=Fair, 3=Good" style="min-width:240px;" title="optional answer labels">
+  <button type="submit">Add question</button>
+</form>
+{% endif %}
+
+{% if results %}
+<h2>Results</h2>
+{% for q in results %}
+<div class="qresult">
+  <div class="qhead"><strong>Q{{ q.seq }}.</strong> {{ q.prompt }}
+    <span class="muted">({{ q.total }} response{{ '' if q.total == 1 else 's' }})</span></div>
+  {% if q.total %}
+  {% for row in q.rows %}
+  <div class="bar-row">
+    <div class="bar-label">{{ row.answer }}{% if row.label %} · {{ row.label }}{% endif %}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:{{ row.pct }}%;"></div></div>
+    <div class="bar-num">{{ row.count }} · {{ row.pct }}%</div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="muted" style="font-size:13px;margin:4px 0 0;">No responses yet.</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if session.get('role') in ['admin','operator'] %}
+<h2>Add recipients</h2>
+<form method="post" action="{{ url_for('dashboard.campaign_add_recipients', cid=campaign.id) }}">
+  <textarea name="numbers" rows="4" style="width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);"
+            placeholder="One phone per line. Optional merge data after a comma:&#10;+14155550123&#10;+14155550124, Tuesday at 3 PM&#10;+14155550125, {&quot;when&quot;:&quot;Wed 10 AM&quot;}"></textarea>
+  <div style="margin-top:8px;"><button type="submit">Import (consent-checked)</button></div>
+</form>
+<p class="muted" style="font-size:13px;">Only numbers with granted consent for
+<code>{{ campaign.purpose }}</code> and not opted out are added; others are rejected and reported.
+Text after a comma becomes the <code>{when}</code> reminder field (or paste a JSON object for multiple fields).</p>
+{% endif %}
+
+<h2>Recipients ({{ recipients|length }})</h2>
+<table>
+  <tr><th>Phone</th><th>Status</th><th>Outcome</th><th>Attempts</th><th>Last attempt</th></tr>
+  {% for r in recipients %}
+  <tr>
+    <td><code>{{ r.phone_e164 }}</code></td>
+    <td><span class="tag {{ 'bad' if r.status in ['failed','no_consent','opted_out'] else ('ok' if r.status=='done' else '') }}">{{ r.status }}</span></td>
+    <td>{{ r.outcome or '—' }}</td>
+    <td>{{ r.attempts }}</td>
+    <td class="muted">{{ r.last_attempt_at or '—' }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="muted">No recipients.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

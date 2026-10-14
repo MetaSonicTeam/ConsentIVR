@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Consent & Opt-outs — ConsentIVR{% endblock %}
+{% block body %}
+<h1 style="font-size:20px;">Consent &amp; Opt-outs</h1>
+
+<h2>Add an opt-out</h2>
+<p class="muted">A number here is never dialed by any outbound campaign, and inbound
+callers who press the opt-out key land here automatically.</p>
+<form class="inline" method="post" action="{{ url_for('dashboard.opt_out_add') }}">
+  <input name="phone" placeholder="+14155550123" required>
+  <select name="scope">
+    <option value="all">all purposes</option>
+    <option value="appointment">appointment</option>
+    <option value="survey">survey</option>
+  </select>
+  <button type="submit">Add opt-out</button>
+</form>
+
+<h2>Opt-out list ({{ opt_outs|length }})</h2>
+<table>
+  <tr><th>Phone</th><th>Scope</th><th>Reason</th><th>Added</th>{% if session.role=='admin' %}<th></th>{% endif %}</tr>
+  {% for o in opt_outs %}
+  <tr>
+    <td><code>{{ o.phone_e164 }}</code></td>
+    <td>{{ o.scope }}</td>
+    <td class="muted">{{ o.reason or '' }}</td>
+    <td class="muted">{{ o.created_at }}</td>
+    {% if session.role=='admin' %}
+    <td>
+      <form method="post" action="{{ url_for('dashboard.opt_out_remove') }}" onsubmit="return confirm('Remove {{ o.phone_e164 }} from opt-out list?');">
+        <input type="hidden" name="phone" value="{{ o.phone_e164 }}">
+        <button class="ghost" type="submit">remove</button>
+      </form>
+    </td>
+    {% endif %}
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="muted">No opt-outs recorded.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Consent records ({{ consents|length }})</h2>
+<table>
+  <tr><th>Phone</th><th>Name</th><th>Purpose</th><th>Channel</th><th>Status</th><th>Source</th><th>Granted</th></tr>
+  {% for c in consents %}
+  <tr>
+    <td><code>{{ c.phone_e164 }}</code></td>
+    <td>{{ c.display_name or '—' }}</td>
+    <td>{{ c.purpose }}</td>
+    <td>{{ c.channel }}</td>
+    <td><span class="tag {{ 'ok' if c.status=='granted' else 'bad' }}">{{ c.status }}</span></td>
+    <td class="muted">{{ c.source or '—' }}</td>
+    <td class="muted">{{ c.granted_at }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="muted">No consent records yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}IVR Menus — ConsentIVR{% endblock %}
+{% block body %}
+<h1 style="font-size:20px;">IVR Menus</h1>
+<p class="muted">Inbound routing is driven entirely by these records. The menu marked
+<span class="tag ok">entry</span> is where every inbound call begins.</p>
+
+<h2>Inbound mode <span class="tag {{ 'ok' if inbound.mode == 'ivr' else 'warn' }}">{{ inbound.mode }}</span></h2>
+<p class="muted">Overrides how <em>all</em> inbound calls are handled right now.
+<code>ivr</code> = the menu below · <code>forward</code> = send every call to a number ·
+<code>voicemail</code> = take a message · <code>closed</code> = play a message and hang up.</p>
+{% if session.get('role') in ['admin','operator'] %}
+<form class="inline" method="post" action="{{ url_for('dashboard.inbound_mode') }}">
+  <select name="mode">
+    {% for md in inbound_modes %}
+    <option value="{{ md }}" {{ 'selected' if inbound.mode == md }}>{{ md }}</option>
+    {% endfor %}
+  </select>
+  <input name="forward_number" value="{{ inbound.forward_number }}" placeholder="forward-to number (for forward mode)">
+  <input name="closed_message" value="{{ inbound.closed_message }}" placeholder="closed message (for closed mode)" style="min-width:260px;">
+  <button type="submit">Save mode</button>
+</form>
+{% else %}
+<p class="muted">Forward to: <code>{{ inbound.forward_number or '—' }}</code></p>
+{% endif %}
+
+{% for m in menus %}
+<h2>
+  {{ m.name }} <code>{{ m.menu_key }}</code>
+  {% if m.is_entry %}<span class="tag ok">entry</span>{% endif %}
+  {% if not m.active %}<span class="tag bad">inactive</span>{% endif %}
+  {% if m.recording_enabled %}<span class="tag warn">recording on</span>{% endif %}
+</h2>
+{% if session.get('role') in ['admin','operator'] %}
+<form method="post" action="{{ url_for('dashboard.menu_edit', menu_key=m.menu_key) }}" style="margin:10px 0;">
+  <div style="margin-bottom:8px;">
+    <label class="muted" style="display:block;margin-bottom:4px;">Greeting (spoken on entry)</label>
+    <textarea name="greeting" rows="2" required
+      style="width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);">{{ m.greeting }}</textarea>
+  </div>
+  <div style="margin-bottom:8px;">
+    <label class="muted" style="display:block;margin-bottom:4px;">After-hours message (optional)</label>
+    <textarea name="after_hours_msg" rows="2"
+      style="width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);">{{ m.after_hours_msg or '' }}</textarea>
+  </div>
+  <div class="inline">
+    <label class="muted">Voice:</label>
+    <select name="voice">
+      <option value="" {{ 'selected' if not m.voice }}>default ({{ config_default_voice }})</option>
+      {% for vid, label, lang in voices %}
+      <option value="{{ vid }}" {{ 'selected' if m.voice == vid }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <label class="muted" style="display:inline-flex;align-items:center;gap:6px;">
+      <input type="checkbox" name="recording_enabled" value="1" {{ 'checked' if m.recording_enabled }} style="width:auto;"> recording / voicemail
+    </label>
+    <label class="muted" style="display:inline-flex;align-items:center;gap:6px;">
+      <input type="checkbox" name="active" value="1" {{ 'checked' if m.active }} style="width:auto;"> active
+    </label>
+    <button type="submit">Save menu</button>
+  </div>
+</form>
+{% else %}
+<p class="muted">Greeting: &ldquo;{{ m.greeting }}&rdquo; · Voice: <code>{{ m.voice or 'default' }}</code></p>
+{% endif %}
+<table>
+  <tr><th>Digit</th><th>Label</th><th>Action</th><th>Target</th></tr>
+  {% for o in opts_by_menu.get(m.id, []) %}
+  <tr>
+    <td><code>{{ o.digit }}</code></td>
+    <td>{{ o.label }}</td>
+    <td><span class="tag">{{ o.action_type }}</span></td>
+    <td class="muted">{{ o.action_value or '—' }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="4" class="muted">No options.</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No menus configured. Run <code>python seed.py</code> to create a starter menu.</p>
+{% endfor %}
+{% endblock %}

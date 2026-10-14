@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Campaigns — ConsentIVR{% endblock %}
+{% block body %}
+<h1 style="font-size:20px;">Outbound Campaigns</h1>
+<p class="muted">Reminder and survey campaigns. Dialing is gated by consent,
+opt-outs, and business hours — re-checked for every recipient at call time.</p>
+
+{% if session.get('role') in ['admin','operator'] %}
+<h2>New campaign</h2>
+<form class="inline" method="post" action="{{ url_for('dashboard.campaign_new') }}">
+  <input name="name" placeholder="Campaign name" required style="min-width:220px;">
+  <select name="kind">
+    <option value="reminder">reminder</option>
+    <option value="survey">survey</option>
+  </select>
+  <select name="channel" title="voice call, SMS, or WhatsApp">
+    <option value="voice">voice</option>
+    <option value="sms">sms</option>
+    <option value="whatsapp">whatsapp</option>
+  </select>
+  <input name="purpose" placeholder="consent purpose (e.g. appointment)" required>
+  <input name="script_text" placeholder="reminder script, supports {org} {when}" style="min-width:260px;">
+  <select name="voice" title="spoken voice (voice campaigns)">
+    <option value="">default voice</option>
+    {% for vid, label, lang in voices %}
+    <option value="{{ vid }}">{{ label }}</option>
+    {% endfor %}
+  </select>
+  <label class="muted" style="display:inline-flex;align-items:center;gap:6px;">
+    <input type="checkbox" name="amd_enabled" value="1" checked style="width:auto;"> voicemail detection
+  </label>
+  <input name="agent_number" placeholder="agent # for 'press 0' (optional)" title="voice campaigns: recipients can press 0 to reach this number">
+  <button type="submit">Create</button>
+</form>
+<p class="muted" style="font-size:13px;">The <code>purpose</code> must match a granted consent purpose, or no one
+will be callable. SMS requires consent recorded for the <code>sms</code> channel specifically.
+Surveys are voice-only; leave the script blank for surveys and add questions on the next page.</p>
+{% endif %}
+
+<h2>All campaigns</h2>
+<table>
+  <tr><th>Name</th><th>Kind</th><th>Purpose</th><th>Status</th><th>Progress</th><th></th></tr>
+  {% for c in campaigns %}
+  <tr>
+    <td><a href="{{ url_for('dashboard.campaign_detail', cid=c.id) }}">{{ c.name }}</a></td>
+    <td><span class="tag">{{ c.kind }}</span></td>
+    <td>{{ c.purpose }}</td>
+    <td><span class="tag {{ 'ok' if c.status in ['completed','running'] else '' }}">{{ c.status }}</span></td>
+    <td class="muted">{{ c.done }} / {{ c.total }}</td>
+    <td><a href="{{ url_for('dashboard.campaign_detail', cid=c.id) }}">open</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">No campaigns yet. Create one above, or run <code>python seed_campaign.py</code> for a demo.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

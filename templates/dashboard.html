@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Overview — ConsentIVR{% endblock %}
+{% block body %}
+<div class="cards">
+  <div class="card"><div class="n">{{ stats.calls_today }}</div><div class="l">Calls today</div></div>
+  <div class="card"><div class="n">{{ stats.contacts }}</div><div class="l">Contacts</div></div>
+  <div class="card"><div class="n">{{ stats.menus }}</div><div class="l">Active menus</div></div>
+  <div class="card"><div class="n">{{ stats.opt_outs }}</div><div class="l">Opt-outs</div></div>
+</div>
+
+<h2>Recent calls</h2>
+<table>
+  <tr><th>When</th><th>Dir</th><th>From</th><th>To</th><th>Purpose</th><th>Status</th><th>Dur</th></tr>
+  {% for c in calls %}
+  <tr>
+    <td class="muted">{{ c.started_at }}</td>
+    <td>{{ c.direction }}</td>
+    <td><code>{{ c.from_number or '—' }}</code></td>
+    <td><code>{{ c.to_number or '—' }}</code></td>
+    <td>{{ c.purpose or '—' }}</td>
+    <td><span class="tag">{{ c.status or '—' }}</span></td>
+    <td>{{ c.duration_sec or '—' }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="muted">No calls yet.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Recent IVR events</h2>
+<table>
+  <tr><th>When</th><th>Event</th><th>Detail</th></tr>
+  {% for e in events %}
+  <tr><td class="muted">{{ e.created_at }}</td><td>{{ e.event }}</td><td class="muted">{{ e.detail or '' }}</td></tr>
+  {% else %}
+  <tr><td colspan="3" class="muted">No events yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
