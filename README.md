@@ -1,6 +1,8 @@
 # ConsentIVR
 
-**Consent-first voice, SMS, and WhatsApp communications - enforced in code.**
+![ConsentIVR Banner](https://raw.githubusercontent.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/banner.png)
+
+**Consent-first voice, SMS, and WhatsApp communications — enforced in code.**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
