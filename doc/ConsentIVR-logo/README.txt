@@ -23,7 +23,15 @@ icons/
   favicon-32.png, favicon-16.png
 
 Colours   Violet #7C3AED · Lilac (dark mode) #A78BFA · Deep #4C1D95 · Ink #0F0A2A
-MetaSonic Cyan #2EC5FF → Blue #1D5BFF (mark + "Sonic"), used only in the endorsement.
+MetaSonic  Official MS monogram (cyan → blue → violet); "Sonic" uses #0096FF → #7A1CFF. Endorsement only.
 Type      Wordmark: Inter Display ExtraBold. Tagline / endorsement: Poppins.
           (The ConsentIVR site uses Archivo/IBM Plex and MetaSonic uses Plus Jakarta Sans; neither
            was installable here, so the PNGs use the closest available fonts.)
+
+banner/
+  consentivr-banner-1920x1080.png, consentivr-banner-3840x2160.png (4K)   Website hero / slides.
+  consentivr-social-header-1500x500(.png, @2x)                             X/Twitter header (crops OK for LinkedIn).
+
+blog/
+  consentivr-blog-featured-1200x630(.png, @2x)        Featured / Open Graph image: "3 consent gates every call must pass".
+  consentivr-blog-featured-clean-1200x630(.png, @2x)  No headline, for platforms that overlay the post title.
