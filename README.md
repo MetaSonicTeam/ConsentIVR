@@ -1,6 +1,6 @@
 # ConsentIVR
 
-![ConsentIVR Banner](https://raw.githubusercontent.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/consentivr-social-header-1500x500.png)
+![ConsentIVR Banner](https://github.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/consentivr-social-header-1500x500.png)
 
 **Consent-first voice, SMS, and WhatsApp communications — enforced in code.**
 
