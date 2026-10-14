@@ -129,8 +129,8 @@ You may need credentials and configuration for whichever providers and optional 
 1. Clone your repository:
 
    ```bash
-   git clone <YOUR-GITHUB-REPOSITORY-URL>
-   cd <ConsentIVRSITORY-DIRECTORY>
+   git clone https://github.com/MetaSonicTeam/ConsentIVR.git
+   cd ConsentIVR
    ```
 
 2. Create and activate a Python virtual environment using the method appropriate for your operating system.
