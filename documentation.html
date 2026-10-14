@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ConsentIVR Documentation</title>
+<meta name="description" content="Operator and developer documentation for ConsentIVR — a consent-based Flask + Twilio voice & SMS platform.">
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#141a26; --panel2:#0f1420; --ink:#e7edf5; --muted:#8aa0b8;
+    --line:#243041; --accent:#4f8ef7; --ok:#36c48f; --warn:#f2b84b; --bad:#f2555a;
+    --code:#0f1420;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f6f8fb; --panel:#ffffff; --panel2:#eef2f7; --ink:#15202b; --muted:#5a6b7d;
+      --line:#dde4ec; --accent:#2f6fe0; --code:#eef2f7;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f8fb; --panel:#ffffff; --panel2:#eef2f7; --ink:#15202b; --muted:#5a6b7d;
+    --line:#dde4ec; --accent:#2f6fe0; --code:#eef2f7;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.65 system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{background:var(--code);padding:1px 6px;border-radius:6px;font-size:.92em;
+       font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;
+      padding:14px 16px;overflow:auto;font-size:13px;line-height:1.5;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+  pre code{background:none;padding:0;}
+
+  .layout{display:grid;grid-template-columns:260px 1fr;max-width:1200px;margin:0 auto;}
+  nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;
+          padding:24px 16px;border-right:1px solid var(--line);}
+  nav.toc .brand{font-weight:800;letter-spacing:.3px;font-size:18px;margin-bottom:4px;}
+  nav.toc .tag{font-size:11px;color:var(--muted);}
+  nav.toc h4{margin:18px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  nav.toc a{display:block;color:var(--muted);padding:3px 0;font-size:13.5px;}
+  nav.toc a:hover{color:var(--ink);text-decoration:none;}
+
+  main{padding:28px 32px 120px;min-width:0;}
+  h1{font-size:28px;margin:.2em 0 .1em;}
+  h2{font-size:21px;margin:2em 0 .5em;padding-top:8px;border-top:1px solid var(--line);}
+  h2:first-of-type{border-top:none;}
+  h3{font-size:16px;margin:1.6em 0 .4em;}
+  p,li{color:var(--ink);}
+  .lead{color:var(--muted);font-size:16px;}
+  .muted{color:var(--muted);}
+  table{width:100%;border-collapse:collapse;background:var(--panel);
+        border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);
+        font-size:13.5px;vertical-align:top;}
+  th{color:var(--muted);font-weight:600;background:var(--panel2);}
+  tr:last-child td{border-bottom:none;}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;
+        background:var(--panel2);color:var(--muted);border:1px solid var(--line);}
+  .pill.post{color:var(--ok);} .pill.get{color:var(--accent);}
+  .note{border-left:3px solid var(--accent);background:var(--panel);
+        padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;}
+  .note.warn{border-left-color:var(--warn);}
+  .note.bad{border-left-color:var(--bad);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+  .card h3{margin:0 0 6px;font-size:15px;}
+  .card p{margin:0;font-size:13.5px;color:var(--muted);}
+  .toggle{position:fixed;top:14px;right:16px;z-index:10;background:var(--panel);
+          border:1px solid var(--line);color:var(--muted);border-radius:8px;
+          padding:6px 10px;cursor:pointer;font:inherit;font-size:13px;}
+  kbd{background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;
+      border-radius:5px;padding:1px 6px;font-size:12px;font-family:ui-monospace,monospace;}
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+    nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);}
+    main{padding:20px 16px 80px;}
+  }
+</style>
+</head>
+<body>
+<button class="toggle" onclick="(function(){var r=document.documentElement;var d=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',d);})()">◐ theme</button>
+<div class="layout">
+
+<nav class="toc">
+  <div class="brand">ConsentIVR</div>
+  <div class="tag">Consent-based voice &amp; SMS</div>
+  <h4>Start here</h4>
+  <a href="#overview">Overview</a>
+  <a href="#principles">Design principles</a>
+  <a href="#quickstart">Quick start</a>
+  <a href="#layout">Project layout</a>
+  <h4>Configuration</h4>
+  <a href="#env">Environment (.env)</a>
+  <a href="#settings">settings.ini</a>
+  <a href="#twilio">Twilio webhooks</a>
+  <h4>Inbound</h4>
+  <a href="#inbound-flow">IVR call flow</a>
+  <a href="#menus">Menus &amp; options</a>
+  <a href="#inbound-mode">Inbound mode</a>
+  <a href="#transfer">Call transfer</a>
+  <h4>Outbound</h4>
+  <a href="#campaigns">Campaigns</a>
+  <a href="#gates">Consent gates</a>
+  <a href="#runner">Background runner &amp; lock</a>
+  <a href="#sms">SMS reminders</a>
+  <a href="#surveys">Surveys &amp; results</a>
+  <h4>Platform</h4>
+  <a href="#consent">Consent &amp; opt-out</a>
+  <a href="#voices">Voices &amp; AMD</a>
+  <a href="#security">Security &amp; privacy</a>
+  <a href="#encryption">Encryption (PGP / SQLCipher)</a>
+  <h4>Reference</h4>
+  <a href="#endpoints">HTTP endpoints</a>
+  <a href="#data-model">Data model</a>
+  <a href="#cli">CLI tools</a>
+  <a href="#compliance">Compliance notes</a>
+</nav>
+
+<main>
+  <h1>ConsentIVR Documentation</h1>
+  <p class="lead">A consent-first voice &amp; SMS platform built on Flask, Twilio and SQLite.
+  Inbound IVR routing, outbound appointment reminders and surveys, an operator dashboard,
+  and compliance controls enforced in code.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="overview">Overview</h2>
+  <p>ConsentIVR runs a call-center "front door" (inbound IVR) and opt-in outbound campaigns
+  (voice and SMS). Operators monitor and control it from a web dashboard, with optional
+  Telegram alerts. Everything is data-driven: menus, business hours, campaigns and recipients
+  live in the database and are editable without code changes.</p>
+  <div class="grid">
+    <div class="card"><h3>Inbound IVR</h3><p>Menu-driven routing, warm transfer to agents, voicemail, and a global inbound mode switch.</p></div>
+    <div class="card"><h3>Outbound campaigns</h3><p>Appointment reminders &amp; surveys over voice or SMS, dialing only consented, non-suppressed contacts.</p></div>
+    <div class="card"><h3>Dashboard</h3><p>Calls, live IVR events, menus, consent/opt-outs, campaigns, survey results, and the SMS message log.</p></div>
+    <div class="card"><h3>Compliance</h3><p>Signed webhooks, opt-out gating, recording disclosure, PGP exports, and optional at-rest DB encryption.</p></div>
+  </div>
+
+  <!-- ============================================================= -->
+  <h2 id="principles">Design principles</h2>
+  <p>These rules are enforced in code, not just documented:</p>
+  <ol>
+    <li><strong>No identity-secret capture.</strong> There is no prompt, route, or database
+    column for OTPs, SSNs, card numbers, or passcodes. The only digit the IVR interprets is a
+    single menu selection (or a survey answer).</li>
+    <li><strong>Truthful identity.</strong> Prompts speak your real organization name
+    (<code>settings.ini [org] name</code>). Caller ID is a Twilio number you own — there is no
+    number-spoofing configuration.</li>
+    <li><strong>Consent before outbound contact.</strong> Outbound dialing lists are built only
+    from contacts with a granted consent record (<code>consent.callable_contacts</code>).</li>
+    <li><strong>Always honor opt-out.</strong> A suppression / Do-Not-Call list is checked
+    before every outbound call or text, and callers can opt out by keypress (voice) or
+    <code>STOP</code> (SMS).</li>
+    <li><strong>Recording off by default</strong>, and when enabled the caller hears the
+    recording notice before any audio is captured.</li>
+    <li><strong>Authenticated webhooks.</strong> Every Twilio webhook is verified with the
+    <code>X-Twilio-Signature</code> (<code>security.py</code>).</li>
+  </ol>
+  <div class="note warn">You remain responsible for complying with the telemarketing,
+  calling-time, recording-consent, and privacy laws that apply to you (e.g. TCPA, state
+  two-party-consent recording laws, local equivalents).</div>
+
+  <!-- ============================================================= -->
+  <h2 id="quickstart">Quick start</h2>
+<pre><code>cd ConsentIVR
+python -m venv .venv &amp;&amp; . .venv/Scripts/activate     # Windows
+pip install -r requirements.txt
+
+cp .env.example .env         # edit with Twilio creds + PUBLIC_BASE_URL
+python seed.py               # starter 'main' menu + business hours
+python create_admin.py admin "a-strong-password"
+python seed_campaign.py      # (optional) demo reminder + survey campaigns
+
+python app.py                # dev server on http://localhost:5000</code></pre>
+  <p>Expose it to Twilio in development with ngrok and point your number's webhooks at your
+  <code>PUBLIC_BASE_URL</code> (see <a href="#twilio">Twilio webhooks</a>). Dashboard:
+  <code>http://localhost:5000/</code> · Health: <code>/healthz</code>.</p>
+  <p class="muted">Production: run under a WSGI server — <code>gunicorn "app:create_app()"</code>
+  on Linux, or <code>waitress</code> on Windows.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="layout">Project layout</h2>
+  <table>
+    <tr><th>File</th><th>Responsibility</th></tr>
+    <tr><td><code>app.py</code></td><td>Flask app factory, blueprint registration, <code>/healthz</code></td></tr>
+    <tr><td><code>config.py</code></td><td>Env + <code>settings.ini</code> loader; voice list; feature flags</td></tr>
+    <tr><td><code>db.py</code></td><td>SQLite / SQLCipher access layer, migrations, settings helpers</td></tr>
+    <tr><td><code>schema.sql</code></td><td>Database schema</td></tr>
+    <tr><td><code>security.py</code></td><td>Twilio signature validation + dashboard auth</td></tr>
+    <tr><td><code>consent.py</code></td><td>Consent + opt-out/DNC logic (the outbound gate), E.164 normalization</td></tr>
+    <tr><td><code>hours.py</code></td><td>Business-hours evaluation</td></tr>
+    <tr><td><code>ivr.py</code></td><td>Inbound IVR routing, inbound mode, warm transfer, whisper</td></tr>
+    <tr><td><code>outbound.py</code></td><td>Outbound campaign runner (voice + SMS), gated per recipient</td></tr>
+    <tr><td><code>outbound_voice.py</code></td><td>Outbound voice TwiML (reminder + survey + press-0 transfer)</td></tr>
+    <tr><td><code>sms.py</code></td><td>SMS send + inbound STOP/START + delivery status</td></tr>
+    <tr><td><code>jobs.py</code></td><td>Background campaign runner (threaded)</td></tr>
+    <tr><td><code>joblock.py</code></td><td>SQLite single-flight lock (safe across workers)</td></tr>
+    <tr><td><code>crypto.py</code></td><td>PGP/GPG encryption of exported PII (gpg binary)</td></tr>
+    <tr><td><code>webhooks.py</code></td><td>Twilio call-status callbacks</td></tr>
+    <tr><td><code>notify.py</code></td><td>Telegram notifications (optional), with number masking</td></tr>
+    <tr><td><code>dashboard.py</code></td><td>Web admin dashboard</td></tr>
+    <tr><td><code>templates/</code></td><td>Dashboard HTML</td></tr>
+    <tr><td><code>seed.py</code> / <code>seed_campaign.py</code></td><td>Starter menu + hours / demo campaigns</td></tr>
+    <tr><td><code>create_admin.py</code> / <code>run_campaign.py</code></td><td>Admin user / CLI campaign launcher</td></tr>
+  </table>
+
+  <!-- ============================================================= -->
+  <h2 id="env">Environment variables (.env)</h2>
+  <p>Secrets come from environment variables (a <code>.env</code> file in development).
+  Non-secret operational defaults live in <a href="#settings"><code>settings.ini</code></a>.</p>
+  <table>
+    <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+    <tr><td><code>FLASK_SECRET_KEY</code></td><td><em>dev-only</em></td><td>Session signing key. <strong>Set a long random value in production.</strong></td></tr>
+    <tr><td><code>FLASK_DEBUG</code></td><td><code>0</code></td><td><code>1</code> enables debug logging/reloader.</td></tr>
+    <tr><td><code>PUBLIC_BASE_URL</code></td><td>—</td><td>Public URL where Twilio reaches your webhooks (ngrok in dev).</td></tr>
+    <tr><td><code>TWILIO_ACCOUNT_SID</code></td><td>—</td><td>Twilio account SID.</td></tr>
+    <tr><td><code>TWILIO_AUTH_TOKEN</code></td><td>—</td><td>Twilio auth token (also used to verify webhook signatures).</td></tr>
+    <tr><td><code>TWILIO_CALLER_ID</code></td><td>—</td><td>A number you OWN; outbound caller ID &amp; dial callerId.</td></tr>
+    <tr><td><code>TWILIO_SMS_FROM</code></td><td><em>caller ID</em></td><td>SMS-capable sending number (falls back to caller ID).</td></tr>
+    <tr><td><code>VALIDATE_TWILIO_SIGNATURE</code></td><td><code>1</code></td><td>Verify <code>X-Twilio-Signature</code> on every webhook. Keep ON in production.</td></tr>
+    <tr><td><code>TELEGRAM_BOT_TOKEN</code> / <code>TELEGRAM_CHAT_ID</code></td><td>—</td><td>Optional operational alerts (leave blank to disable).</td></tr>
+    <tr><td><code>NOTIFY_MASK_NUMBERS</code></td><td><code>1</code></td><td>Mask phone numbers in Telegram alerts (<code>+14•••••0123</code>).</td></tr>
+    <tr><td><code>PGP_PUBLIC_KEY_FILE</code></td><td>—</td><td>ASCII-armored public key; result CSVs download as <code>.csv.pgp</code>.</td></tr>
+    <tr><td><code>PGP_ENCRYPT_EXPORTS</code></td><td><code>1</code></td><td>Encrypt exports when a key is configured.</td></tr>
+    <tr><td><code>PGP_ENCRYPT_NOTIFICATIONS</code></td><td><code>0</code></td><td>Also PGP-encrypt Telegram alert bodies (impractical for live reading).</td></tr>
+    <tr><td><code>DB_PATH</code></td><td><code>consentivr.db</code></td><td>SQLite database file path.</td></tr>
+    <tr><td><code>DB_ENCRYPTION_KEY</code></td><td>—</td><td>Set to open the whole DB with SQLCipher (see <a href="#encryption">Encryption</a>).</td></tr>
+  </table>
+
+  <!-- ============================================================= -->
+  <h2 id="settings">settings.ini (operational defaults)</h2>
+  <table>
+    <tr><th>Section / key</th><th>Purpose</th></tr>
+    <tr><td><code>[org] name</code></td><td>Your real organization name, spoken to callers.</td></tr>
+    <tr><td><code>[org] support_phone</code></td><td>Optional number spoken as an alternative contact.</td></tr>
+    <tr><td><code>[voice] polly_voice</code></td><td>Global default Amazon Polly voice (e.g. <code>Polly.Joanna</code>).</td></tr>
+    <tr><td><code>[voice] language</code></td><td>Default language code (e.g. <code>en-US</code>).</td></tr>
+    <tr><td><code>[call] record_notice</code></td><td>Disclosure spoken before any recording/voicemail.</td></tr>
+    <tr><td><code>[time] timezone</code></td><td>IANA timezone used to evaluate business hours.</td></tr>
+    <tr><td><code>[phone] default_country_code</code></td><td>Country code assumed for numbers typed without a <code>+</code> (keeps opt-outs matching).</td></tr>
+  </table>
+
+  <!-- ============================================================= -->
+  <h2 id="twilio">Twilio webhook configuration</h2>
+  <p><strong>Voice</strong> (Phone Numbers → your number → Voice Configuration):</p>
+<pre><code>A CALL COMES IN:  POST  {PUBLIC_BASE_URL}/ivr/inbound
+CALL STATUS:      POST  {PUBLIC_BASE_URL}/webhooks/call-status</code></pre>
+  <p><strong>Messaging</strong> (same number, Messaging Configuration) — required for SMS so
+  inbound <code>STOP</code>/<code>START</code> are honored:</p>
+<pre><code>A MESSAGE COMES IN:  POST  {PUBLIC_BASE_URL}/sms/inbound</code></pre>
+  <p class="muted">The SMS status callback (<code>/sms/status</code>) is set automatically on each
+  outbound message. Internal TwiML endpoints (<code>/ivr/whisper</code>, <code>/ivr/post-call</code>,
+  <code>/ivr/out/*</code>) need no configuration — Twilio reaches them via <code>PUBLIC_BASE_URL</code>.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="inbound-flow">Inbound IVR call flow</h2>
+<pre><code>Twilio -> POST /ivr/inbound
+  check inbound mode (ivr | forward | voicemail | closed)
+  if ivr:
+    business hours?  no  -> after-hours message -> optional voicemail
+                     yes -> play entry menu greeting, &lt;Gather&gt; 1 digit
+         -> POST /ivr/menu/&lt;key&gt;
+              digit -> dial(warm transfer) | submenu | voicemail | message | optout | repeat | hangup</code></pre>
+
+  <h3 id="menus">Menus &amp; option actions</h3>
+  <p>Menus live in <code>ivr_menus</code> / <code>ivr_options</code> and are editable from the
+  dashboard (<strong>IVR Menus</strong>), including each menu's greeting, after-hours message,
+  voice, recording toggle, and active flag. Each keypad option has an action type:</p>
+  <table>
+    <tr><th>action_type</th><th>Behavior</th></tr>
+    <tr><td><code>dial</code></td><td>Warm-transfer the caller to <code>action_value</code> (whisper to agent, caller can press <kbd>*</kbd> to leave).</td></tr>
+    <tr><td><code>submenu</code></td><td>Jump to another menu (<code>action_value</code> = its <code>menu_key</code>).</td></tr>
+    <tr><td><code>voicemail</code></td><td>Record a message (only if recording is enabled; disclosure spoken first).</td></tr>
+    <tr><td><code>message</code></td><td>Speak <code>action_value</code>, then return to the entry menu.</td></tr>
+    <tr><td><code>optout</code></td><td>Add the caller to the opt-out list and confirm.</td></tr>
+    <tr><td><code>repeat</code></td><td>Replay the current menu.</td></tr>
+    <tr><td><code>hangup</code></td><td>Thank the caller and end the call.</td></tr>
+  </table>
+
+  <h3 id="inbound-mode">Inbound mode (global override)</h3>
+  <p>A dashboard switch (<strong>IVR Menus → Inbound mode</strong>) changes how <em>all</em>
+  inbound calls are handled immediately, without editing menus. The live value is stored in the
+  <code>settings</code> table and re-read on every call.</p>
+  <table>
+    <tr><th>Mode</th><th>Behavior</th></tr>
+    <tr><td><code>ivr</code></td><td>Normal menu flow (default).</td></tr>
+    <tr><td><code>forward</code></td><td>Send every call straight to a configured number (warm transfer). Overflow / emergency.</td></tr>
+    <tr><td><code>voicemail</code></td><td>Go straight to the voicemail flow.</td></tr>
+    <tr><td><code>closed</code></td><td>Play a configured message and hang up.</td></tr>
+  </table>
+
+  <h3 id="transfer">Call transfer</h3>
+  <ul>
+    <li><strong>Warm (attended) transfer.</strong> A <code>dial</code> option or <code>forward</code>
+    mode plays a whisper to the agent (<code>/ivr/whisper</code>) before bridging; unanswered
+    transfers fall back to voicemail.</li>
+    <li><strong>Star to leave.</strong> The caller can press <kbd>*</kbd> during the agent call to
+    pull out, landing on a short <strong>post-call menu</strong> ("press 1 to return to the main
+    menu") rather than being dropped.</li>
+    <li><strong>Outbound "press 0 for an agent".</strong> A reminder campaign with an
+    <code>agent_number</code> lets recipients press <kbd>0</kbd> mid-call to be warm-transferred
+    to a live agent (whisper, star-to-leave, "no one available" fallback). Voice reminders only.</li>
+  </ul>
+
+  <!-- ============================================================= -->
+  <h2 id="campaigns">Outbound campaigns</h2>
+  <p>Create a campaign from <strong>Campaigns → New campaign</strong>: choose a <code>kind</code>
+  (reminder / survey), a <code>channel</code> (voice / sms), the consent <code>purpose</code> it
+  requires, a voice, the voicemail-detection toggle, and (voice) an optional agent number for
+  "press 0". Then:</p>
+  <ul>
+    <li><strong>Add recipients</strong> — paste numbers (one per line; optional merge data after a
+    comma becomes the <code>{when}</code> field, or paste a JSON object). The import is
+    consent-checked: only consented, non-suppressed numbers are accepted; the rest are reported.</li>
+    <li><strong>Launch / resume</strong> dials <code>pending</code> + <code>failed</code>
+    recipients in the background, inside business hours. <strong>Pause</strong> stops after the
+    current recipient.</li>
+    <li><strong>Download results CSV</strong> (labels or raw digits for surveys).</li>
+  </ul>
+  <p>Reminder scripts support <code>{org}</code> and per-recipient <code>{when}</code> (plus any
+  keys in the recipient's <code>vars_json</code>). Unknown placeholders are left untouched.</p>
+
+  <h3 id="gates">Consent gates (re-checked at send time)</h3>
+  <p>Every call/text passes three gates, re-checked per recipient at dial time — the import check
+  is never trusted on its own:</p>
+  <ol>
+    <li><strong>Not opted out</strong> (<code>consent.is_opted_out</code>).</li>
+    <li><strong>Has matching consent</strong> (<code>consent.has_consent</code> for the purpose;
+    SMS requires consent granted for the <code>sms</code> channel specifically).</li>
+    <li><strong>Inside business hours</strong> (<code>hours.is_open</code>). Outbound fails
+    <em>closed</em>: if no calling window is configured, nothing is dialed.</li>
+  </ol>
+
+  <h3 id="runner">Background runner &amp; cross-worker lock</h3>
+  <p>Launches run in a background thread (<code>jobs.py</code>) so the web worker returns
+  immediately; progress updates on refresh. A <strong>SQLite single-flight lock</strong>
+  (<code>job_locks</code>, <code>joblock.py</code>) guarantees only one worker dials a given
+  campaign at a time — safe even with several Gunicorn/Waitress workers. A crashed worker's lock
+  goes stale after ~2 minutes and is reclaimable. Pacing is one recipient at a time with a short
+  gap; it is not a burst dialer.</p>
+  <div class="note">If you outgrow SQLite, move the runner to a dedicated queue (e.g. Redis + RQ);
+  the dashboard only depends on <code>jobs.launch()</code> / <code>jobs.is_running()</code>.</div>
+
+  <h3 id="sms">SMS reminders</h3>
+  <p>SMS campaigns (reminder kind) send one text per recipient with a <code>Reply STOP to opt
+  out.</code> footer. Inbound <code>STOP</code>/<code>UNSUBSCRIBE</code> writes an opt-out
+  instantly; <code>START</code> re-subscribes. All messages are logged under <strong>Messages</strong>.
+  SMS consent is distinct from voice consent — record it for the <code>sms</code> channel.</p>
+
+  <h3 id="surveys">Surveys &amp; results</h3>
+  <p>Add questions to a survey campaign with an optional answer-label map (<code>1=Poor, 2=Fair,
+  3=Good</code> or JSON). On the call, each question gathers one or more DTMF digits. The campaign
+  page shows a <strong>per-question breakdown</strong> with bars: defined choices always appear
+  (even at 0 responses), and unexpected answers are listed after them. Export is
+  <strong>label-aware</strong> by default; append <code>?raw=1</code> for the raw digits.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="consent">Consent &amp; opt-out model</h2>
+  <p>A <code>contact</code> becomes callable only with a granted <code>consent</code> record for
+  the campaign purpose (or <code>all</code>) and no entry in <code>opt_outs</code>. Opt-out scope
+  is <code>all</code> (suppresses everything) or a specific purpose. Numbers are canonicalized to
+  E.164 on every read/write (<code>consent.normalize_e164</code>) so an opt-out typed as
+  <code>(415) 555-0123</code> reliably suppresses the stored <code>+14155550123</code>.</p>
+  <p>Inbound callers never need consent (they chose to call), but can always opt out by keypress.
+  Operators manage opt-outs under <strong>Consent &amp; Opt-outs</strong>.</p>
+
+  <h2 id="voices">Voices &amp; voicemail detection</h2>
+  <p>Prompts are spoken by an Amazon Polly voice. There is a global default
+  (<code>settings.ini</code>), and each <strong>campaign</strong> and each inbound <strong>menu</strong>
+  can override it from a curated list (US/UK/AU English, US Spanish) — each voice carries its own
+  language automatically. Answering-machine detection (AMD) is a per-campaign toggle (default on):
+  with it on, reminders are left as a voicemail message and surveys are not run against machines.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="security">Security &amp; privacy</h2>
+  <ul>
+    <li><strong>Webhook authenticity.</strong> Every Twilio voice/SMS webhook is verified with
+    <code>X-Twilio-Signature</code> (<code>security.py</code>); keep
+    <code>VALIDATE_TWILIO_SIGNATURE=1</code> in production.</li>
+    <li><strong>Dashboard auth.</strong> bcrypt-hashed passwords, server-side sessions, role gates
+    (<code>admin</code> / <code>operator</code> / <code>viewer</code>). Cookies are
+    <code>HttpOnly</code> + <code>SameSite=Lax</code>.</li>
+    <li><strong>PII masking.</strong> Telegram alerts mask phone numbers by default.</li>
+    <li><strong>Audit log.</strong> Consent changes, logins, campaign actions and menu edits are
+    recorded in <code>audit_log</code>.</li>
+  </ul>
+  <div class="note warn">Not yet included: CSRF tokens on dashboard POST forms (SameSite=Lax
+  mitigates most cross-site POSTs) and login rate limiting. Add these before exposing the
+  dashboard on the public internet.</div>
+
+  <h3 id="encryption">Encryption (PGP exports &amp; SQLCipher at rest)</h3>
+  <p><strong>PGP exports.</strong> Set <code>PGP_PUBLIC_KEY_FILE</code> to an ASCII-armored public
+  key and result CSVs (which contain PII) download as <code>.csv.pgp</code>, openable only by the
+  private-key holder. The server holds no private key, and a failed encryption aborts the export
+  rather than leak plaintext. Requires the <code>gpg</code> binary.</p>
+  <p><strong>At rest (SQLCipher).</strong> Set <code>DB_ENCRYPTION_KEY</code> and install a driver
+  (<code>pip install sqlcipher3</code>) to encrypt the whole database transparently. If the key is
+  set but no driver is installed, the app refuses to start rather than run unencrypted.</p>
+  <div class="note bad">PGP is deliberately <strong>not</strong> used to encrypt phone-number
+  columns: PGP ciphertext is non-deterministic, which would break opt-out exact-match suppression
+  and the <code>UNIQUE(phone_e164)</code> constraint — silently letting opted-out people be
+  dialed. Use SQLCipher (whole-DB) or full-disk encryption for at-rest protection.</div>
+<pre><code>-- Migrate an existing plaintext DB to encrypted:
+sqlcipher consentivr.db
+ATTACH DATABASE 'consentivr.enc.db' AS enc KEY 'your-passphrase';
+SELECT sqlcipher_export('enc');
+DETACH DATABASE enc;
+-- then point DB_PATH at consentivr.enc.db</code></pre>
+
+  <!-- ============================================================= -->
+  <h2 id="endpoints">HTTP endpoints</h2>
+  <h3>Twilio webhooks (signature-verified)</h3>
+  <table>
+    <tr><th>Method / path</th><th>Purpose</th></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/inbound</code></td><td>Inbound call entry point (applies inbound mode).</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/menu/&lt;menu_key&gt;</code></td><td>Handle a pressed digit; route per option.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/whisper</code></td><td>Announcement played to an agent before bridging.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/dial-complete</code></td><td>After a transfer: voicemail fallback or post-call menu.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/post-call</code></td><td>Post-call choice (1 = back to menu).</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/voicemail</code> · <code>/ivr/voicemail-done</code> · <code>/ivr/recording-status</code></td><td>Voicemail capture + recording metadata.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/out/reminder/&lt;cid&gt;</code> · <code>/choice</code></td><td>Outbound reminder TwiML + keypress handling.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/out/transfer-complete</code></td><td>After an outbound "press 0" transfer ends.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/ivr/out/survey/&lt;cid&gt;</code> · <code>/answer</code></td><td>Outbound survey questions + answer capture.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/webhooks/call-status</code></td><td>Call lifecycle status callbacks.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/sms/inbound</code></td><td>Inbound SMS (STOP/START).</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/sms/status</code></td><td>SMS delivery status.</td></tr>
+  </table>
+  <h3>Dashboard (login required)</h3>
+  <table>
+    <tr><th>Method / path</th><th>Purpose</th></tr>
+    <tr><td><span class="pill get">GET</span> <code>/</code></td><td>Overview: recent calls, live IVR events, stats.</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/menus</code></td><td>Menus, inbound mode, per-menu edit.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/menus/&lt;key&gt;/edit</code> · <code>/inbound-mode</code></td><td>Edit a menu / set inbound mode.</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/consent</code></td><td>Consent records + opt-out list.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/opt-out</code> · <code>/opt-out/remove</code></td><td>Add / remove an opt-out.</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/messages</code></td><td>SMS message log (filterable).</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/campaigns</code> · <code>/campaigns/&lt;cid&gt;</code></td><td>Campaign list / detail + results.</td></tr>
+    <tr><td><span class="pill post">POST</span> <code>/campaigns/new</code> · <code>/recipients</code> · <code>/questions</code> · <code>/launch</code> · <code>/pause</code></td><td>Create, import, add questions, launch, pause.</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/campaigns/&lt;cid&gt;/results.csv</code></td><td>Results export (<code>?raw=1</code> for digits).</td></tr>
+    <tr><td><span class="pill get">GET</span> <code>/login</code> · <code>/logout</code> · <code>/healthz</code></td><td>Auth + health check.</td></tr>
+  </table>
+
+  <!-- ============================================================= -->
+  <h2 id="data-model">Data model</h2>
+  <table>
+    <tr><th>Table</th><th>Holds</th></tr>
+    <tr><td><code>users</code></td><td>Dashboard accounts (bcrypt hash, role).</td></tr>
+    <tr><td><code>contacts</code></td><td>People, keyed by E.164 phone.</td></tr>
+    <tr><td><code>consent</code></td><td>Granted/revoked consent per purpose &amp; channel, with evidence.</td></tr>
+    <tr><td><code>opt_outs</code></td><td>Suppression / Do-Not-Call list (scope: all or a purpose).</td></tr>
+    <tr><td><code>ivr_menus</code> / <code>ivr_options</code></td><td>Inbound menu definitions and keypad options.</td></tr>
+    <tr><td><code>business_hours</code></td><td>Per-day open/close windows.</td></tr>
+    <tr><td><code>calls</code> / <code>ivr_events</code></td><td>One row per call; per-call event trail.</td></tr>
+    <tr><td><code>recordings</code></td><td>Voicemail / recording metadata (audio stays with Twilio).</td></tr>
+    <tr><td><code>messages</code></td><td>SMS log (outbound reminders + inbound STOP/START).</td></tr>
+    <tr><td><code>campaigns</code></td><td>Outbound campaigns (kind, channel, voice, AMD, agent number, purpose, script).</td></tr>
+    <tr><td><code>campaign_recipients</code></td><td>Per-recipient status, outcome, attempts, merge vars.</td></tr>
+    <tr><td><code>survey_questions</code> / <code>survey_answers</code></td><td>Survey prompts (+ choice labels) and captured answers.</td></tr>
+    <tr><td><code>job_locks</code></td><td>Single-flight campaign run locks.</td></tr>
+    <tr><td><code>settings</code></td><td>Operator-editable runtime settings (inbound mode, etc.).</td></tr>
+    <tr><td><code>audit_log</code></td><td>Who/what changed configuration or consent.</td></tr>
+  </table>
+
+  <!-- ============================================================= -->
+  <h2 id="cli">CLI tools</h2>
+<pre><code>python seed.py                           # starter 'main'/'support' menus + Mon–Fri 9–5 hours
+python seed_campaign.py                  # demo reminder + survey campaigns (with consent)
+python create_admin.py &lt;user&gt; &lt;password&gt;  # create/reset a dashboard admin
+python run_campaign.py &lt;id&gt;               # launch a campaign from the CLI (same lock as dashboard)
+python run_campaign.py &lt;id&gt; --dry-run     # show who WOULD be contacted, place nothing</code></pre>
+  <p class="muted">CLI launches participate in the same single-flight lock, so they won't
+  double-dial a campaign the dashboard is already running.</p>
+
+  <!-- ============================================================= -->
+  <h2 id="compliance">Compliance notes</h2>
+  <div class="note">This software provides controls (consent gating, opt-out, calling-window
+  enforcement, recording disclosure, encryption) but does not by itself make you compliant.</div>
+  <ul>
+    <li><strong>TCPA / calling windows.</strong> Configure business hours; outbound fails closed
+    when none are set. Keep SMS consent separate from voice consent.</li>
+    <li><strong>Recording consent.</strong> Recording is off by default; the disclosure in
+    <code>[call] record_notice</code> plays before any capture. Confirm one- vs two-party-consent
+    rules for your jurisdictions.</li>
+    <li><strong>Data protection.</strong> Encrypt exports (PGP) and the database (SQLCipher) or
+    host disk, restrict dashboard access, and rotate credentials.</li>
+    <li><strong>Honor opt-outs promptly.</strong> Opt-outs apply across voice and SMS and are
+    checked before every outbound contact.</li>
+  </ul>
+
+  <p class="muted" style="margin-top:40px;border-top:1px solid var(--line);padding-top:16px;">
+  ConsentIVR — generated documentation. Routes, variables and tables above reflect the current
+  codebase; see the source files for authoritative behavior.</p>
+</main>
+</div>
+</body>
+</html>
