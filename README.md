@@ -16,7 +16,7 @@
 
 ConsentIVR is a Flask-based inbound IVR and opt-in outbound communications platform. It combines editable call menus, appointment reminders and surveys, consent and opt-out enforcement, a web dashboard, and an interactive Telegram operator console.
 
-> **Project artifact:** https://claude.ai/artifact/HranFtyg4RQ4q2U6MEHVuW
+> **Project artifact:** https://metasonic.ca/blog_post.php?slug=consentivr-consent-first-voice-sms-whatsapp-platform
 
 ## Overview
 
@@ -168,7 +168,7 @@ ConsentIVR is designed for legitimate, consent-based communications. It intentio
 
 ## Project links
 
-- **Claude artifact:** https://claude.ai/artifact/HranFtyg4RQ4q2U6MEHVuW
+- **Claude artifact:** https://metasonic.ca/blog_post.php?slug=consentivr-consent-first-voice-sms-whatsapp-platform
 - **GitHub repository:** Add your repository URL here.
 - **Issues and support:** Use the Issues tab in your GitHub repository once enabled.
 
