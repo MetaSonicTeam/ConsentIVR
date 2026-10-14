@@ -180,10 +180,6 @@ This README describes the features in the supplied ConsentIVR project overview. 
 
 ---
 
-### Badge notes
-
-Replace the placeholder GitHub URLs (`MetaSonicTeam/ConsentIVR`) with your actual repository path. The badge set above covers:
-
 - **License** - update `MIT` to match your actual license.
 - **Python** - update `3.8+` to your minimum supported version.
 - **Framework/runtime** - Flask, SQLite.
@@ -191,8 +187,8 @@ Replace the placeholder GitHub URLs (`MetaSonicTeam/ConsentIVR`) with your actua
 - **Community** - PRs welcome.
 - **Status** - active.
 
-If you later add CI/CD, coverage, or Docker, add badges such as:
+---
 
-[![ConsentIVR](https://raw.githubusercontent.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/icons/favicon-32.png)](https://github.com/MetaSonicTeam/ConsentIVR)
+[![ConsentIVR](https://raw.githubusercontent.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/powered-by/powered-by-metasonic-dark.png)](https://github.com/MetaSonicTeam/ConsentIVR)
 [![codecov](https://codecov.io/gh/MetaSonicTeam/ConsentIVR/branch/main/graph/badge.svg)](https://codecov.io/gh/MetaSonicTeam/ConsentIVR)
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)](https://www.docker.com/)
