@@ -11,7 +11,7 @@
 [![Telnyx](https://img.shields.io/badge/telnyx-%2300E3B0.svg)](https://telnyx.com/)
 [![Plivo](https://img.shields.io/badge/plivo-%23F76B1C.svg)](https://www.plivo.com/)
 [![Vonage](https://img.shields.io/badge/vonage-%23000000.svg)](https://www.vonage.com/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/YOUR-USERNAME/YOUR-REPO/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/MetaSonicTeam/ConsentIVR/pulls)
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 
 ConsentIVR is a Flask-based inbound IVR and opt-in outbound communications platform. It combines editable call menus, appointment reminders and surveys, consent and opt-out enforcement, a web dashboard, and an interactive Telegram operator console.
@@ -128,7 +128,7 @@ You may need credentials and configuration for whichever providers and optional 
 
    ```bash
    git clone <YOUR-GITHUB-REPOSITORY-URL>
-   cd <YOUR-REPOSITORY-DIRECTORY>
+   cd <ConsentIVRSITORY-DIRECTORY>
    ```
 
 2. Create and activate a Python virtual environment using the method appropriate for your operating system.
@@ -180,7 +180,7 @@ This README describes the features in the supplied ConsentIVR project overview. 
 
 ### Badge notes
 
-Replace the placeholder GitHub URLs (`YOUR-USERNAME/YOUR-REPO`) with your actual repository path. The badge set above covers:
+Replace the placeholder GitHub URLs (`MetaSonicTeam/ConsentIVR`) with your actual repository path. The badge set above covers:
 
 - **License** - update `MIT` to match your actual license.
 - **Python** - update `3.8+` to your minimum supported version.
@@ -191,8 +191,6 @@ Replace the placeholder GitHub URLs (`YOUR-USERNAME/YOUR-REPO`) with your actual
 
 If you later add CI/CD, coverage, or Docker, add badges such as:
 
-```markdown
-[![CI](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-USERNAME/YOUR-REPO/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/YOUR-USERNAME/YOUR-REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR-USERNAME/YOUR-REPO)
+[![ConsentIVR](https://raw.githubusercontent.com/MetaSonicTeam/ConsentIVR/main/doc/ConsentIVR-logo/icons/favicon-32.png)](https://github.com/MetaSonicTeam/ConsentIVR)
+[![codecov](https://codecov.io/gh/MetaSonicTeam/ConsentIVR/branch/main/graph/badge.svg)](https://codecov.io/gh/MetaSonicTeam/ConsentIVR)
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)](https://www.docker.com/)
-```
